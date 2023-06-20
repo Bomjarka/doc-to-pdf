@@ -31,9 +31,9 @@ class DocumentController extends Controller
                     'filename' => $document->getClientOriginalName(),
                 ]);
             }
-        } else {
-            return 'No file';
         }
+
+        return 'No file';
     }
 
     /**
@@ -48,15 +48,13 @@ class DocumentController extends Controller
         $vars = json_decode($request->get('variable'));
         $fileName = $request->get('filename');
 
-        if ($fileName) {
-            if ($documentService->fileExists($fileName)) {
-                $documentService->changeTemplate($fileName, $vars);
+        if ($fileName && $documentService->fileExists($fileName)) {
+            $documentService->changeTemplate($fileName, $vars);
 
-                return response()->download($documentService->convert($fileName))->deleteFileAfterSend();
-            }
-        } else {
-            return 'No file';
+            return response()->download($documentService->convert($fileName))->deleteFileAfterSend();
         }
+
+        return 'No file';
     }
 }
 
