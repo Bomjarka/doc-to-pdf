@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\FileSystemRepositoryTests;
+namespace Tests\Unit;
 
 use App\Services\Repository\FileSystemRepository;
 use Illuminate\Http\UploadedFile;
@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
-class FileSystemRepositoryTests extends TestCase
+class FileSystemRepositoryTest extends TestCase
 {
     private function createFile($fileName = null)
     {
