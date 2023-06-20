@@ -10,6 +10,12 @@ use PhpOffice\PhpWord\Exception\CreateTemporaryFileException;
 
 class DocumentController extends Controller
 {
+
+    public function index()
+    {
+        return view('files');
+    }
+
     /**
      * @param Request $request
      * @param DocumentService $documentService

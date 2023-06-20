@@ -19,9 +19,8 @@ Route::get('/', function () {
 });
 
 Route::prefix('/doc-to-pdf')->group(function () {
-    Route::get('/', function () {
-        return view('files');
-    });
+    Route::get('/', [DocumentController::class, 'index'])->name('index');
+
     Route::post('/upload-file', [DocumentController::class, 'upload'])->name('upload');
 
     Route::post('/convert', [DocumentController::class, 'convert'])->name('convert');
