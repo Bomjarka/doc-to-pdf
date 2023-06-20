@@ -5,10 +5,8 @@ namespace App\Http\Controllers;
 use App\Services\DocumentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use League\Flysystem\FilesystemException;
 use PhpOffice\PhpWord\Exception\CopyFileException;
 use PhpOffice\PhpWord\Exception\CreateTemporaryFileException;
-use PhpOffice\PhpWord\Exception\Exception;
 
 class DocumentController extends Controller
 {
@@ -18,7 +16,6 @@ class DocumentController extends Controller
      * @return JsonResponse|void
      * @throws CopyFileException
      * @throws CreateTemporaryFileException
-     * @throws FilesystemException
      */
     public function upload(Request $request, DocumentService $documentService)
     {
@@ -43,10 +40,8 @@ class DocumentController extends Controller
      * @param Request $request
      * @param DocumentService $documentService
      * @return string|void
-     * @throws FilesystemException
      * @throws CopyFileException
      * @throws CreateTemporaryFileException
-     * @throws Exception
      */
     public function convert(Request $request, DocumentService $documentService)
     {
@@ -57,7 +52,7 @@ class DocumentController extends Controller
             if ($documentService->fileExists($fileName)) {
                 $documentService->changeTemplate($fileName, $vars);
 
-                return response()->download($documentService->convertToPDF($fileName))->deleteFileAfterSend();
+                return response()->download($documentService->convert($fileName))->deleteFileAfterSend();
             }
         } else {
             return 'No file';
@@ -65,4 +60,3 @@ class DocumentController extends Controller
     }
 }
 
-//{  "name":"Test",   "something":"smth" }

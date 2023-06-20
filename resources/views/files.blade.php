@@ -64,6 +64,7 @@
                     success: function (response) {
                         $('.vars').append(response.vars.toString());
                         $('.filename').val(response.filename);
+                        $('.upload_button').prop('disabled', true);
                     },
                     error: function (response) {
                         console.log("error : " + JSON.stringify(response));

@@ -3,47 +3,48 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Services\Converter\ConverterInterface;
+use App\Services\Repository\RepositoryInterface;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
-use League\Flysystem\FilesystemException;
 use PhpOffice\PhpWord\Exception\CopyFileException;
 use PhpOffice\PhpWord\Exception\CreateTemporaryFileException;
-use PhpOffice\PhpWord\Exception\Exception;
-use PhpOffice\PhpWord\IOFactory;
-use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\TemplateProcessor;
 
 
 class DocumentService
 {
+    public function __construct(
+        private ConverterInterface  $converter,
+        private RepositoryInterface $fileRepository,
+    )
+    {
+    }
 
-    private const DOCUMENTS_FOLDER = 'documents';
     /**
      * @param UploadedFile $document
      * @return void
      */
     public function saveDocument(UploadedFile $document): void
     {
-        $document->storeAs('documents', $document->getClientOriginalName(), 'local');
+        $this->fileRepository->saveFile($document);
     }
 
     /**
      * @param string $documentName
      * @return bool
-     * @throws FilesystemException
      */
     public function fileExists(string $documentName): bool
     {
-        return Storage::disk('local')->has(self::DOCUMENTS_FOLDER . '/' . $documentName);
+        return $this->fileRepository->fileExists($documentName);
     }
 
     /**
      * @param string $documentName
      * @return string
      */
-    private function getFile(string $documentName): string
+    private function getFilePath(string $documentName): string
     {
-        return Storage::disk('local')->path(self::DOCUMENTS_FOLDER . '/' . $documentName);
+        return $this->fileRepository->getFilePath($documentName);
     }
 
 
@@ -53,37 +54,22 @@ class DocumentService
      */
     public function changeTemplate(string $documentName, $vars = null): void
     {
-        $templateProcessor = new TemplateProcessor($this->getFile($documentName));
+        $templateProcessor = new TemplateProcessor($this->getFilePath($documentName));
         if ($vars) {
             foreach ($vars as $var => $val) {
                 $templateProcessor->setValue($var, $val);
             }
         }
-        $templateProcessor->saveAs($this->getFile($documentName));
+        $templateProcessor->saveAs($this->getFilePath($documentName));
     }
 
-    /**
-     * @param string $documentName
-     * @return string
-     * @throws Exception
-     */
-    public function convertToPDF(string $documentName): string
+
+    public function convert(string $documentName)
     {
-        /* Set the PDF Engine Renderer Path */
-        $domPdfPath = base_path('vendor/dompdf/dompdf');
-        Settings::setPdfRendererPath($domPdfPath);
-        Settings::setPdfRendererName('DomPDF');
-
-        //Load word file
-        $content = IOFactory::load($this->getFile($documentName));
-
-        //Save it into PDF
-        $PDFWriter = IOFactory::createWriter($content, 'PDF');
-        $PDFWriter->save(Storage::disk('local')->path(self::DOCUMENTS_FOLDER . '/' . mb_strstr($documentName, '.', true) . '.pdf'));
-
+        $convertedFile = $this->converter->convert($this->getFilePath($documentName));
         $this->deleteFile($documentName);
 
-        return Storage::disk('local')->path(self::DOCUMENTS_FOLDER . '/' . mb_strstr($documentName, '.', true) . '.pdf');
+        return $convertedFile;
     }
 
     /**
@@ -92,9 +78,7 @@ class DocumentService
      */
     private function deleteFile(string $documentName): void
     {
-        if (Storage::disk('local')->exists(self::DOCUMENTS_FOLDER . '/' . $documentName)) {
-            Storage::delete(self::DOCUMENTS_FOLDER . '/' . $documentName);
-        }
+        $this->fileRepository->deleteFile($documentName);
     }
 
     /**
@@ -105,8 +89,6 @@ class DocumentService
      */
     public function getVariables(string $documentName): array
     {
-        $templateProcessor = new TemplateProcessor($this->getFile($documentName));
-
-        return $templateProcessor->getVariables();
+        return (new TemplateProcessor($this->getFilePath($documentName)))->getVariables();
     }
 }
