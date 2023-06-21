@@ -7,7 +7,7 @@ services:
       - ./:/var/www/
       - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
     ports:
-      - "8085:80"
+        - ${DOCKER_HTTP_PORT:-80}:80
     depends_on:
       - app
     container_name: doc_to_pdf_docker_nginx
