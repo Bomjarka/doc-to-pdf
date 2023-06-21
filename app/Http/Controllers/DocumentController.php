@@ -25,6 +25,9 @@ class DocumentController extends Controller
      */
     public function upload(Request $request, DocumentService $documentService)
     {
+        $request->validate([
+            'file' => 'required|mimes:pdf,csv,xls,xlsx,doc,docx|max:2048',
+        ]);
         $document = $request->file('file');
         if ($document) {
             $documentService->saveDocument($document);

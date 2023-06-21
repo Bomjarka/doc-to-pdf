@@ -40,8 +40,16 @@
 </html>
 <script>
     $(document).ready(function () {
+        let approvedextensions = ['docx'];
         $('.doc-to-convert').on('change', function () {
             $('.upload_button').prop('disabled', false);
+            let input =$('.doc-to-convert').prop('files')[0];
+            let ext = input.name.split('.')[1];
+            // if (jQuery.inArray(ext, approvedextensions) === -1) {
+            //     $('.upload_button').prop('disabled', true);
+            //     $('.doc-to-convert').val('');
+            //     alert('Please attach file with docx ext.');
+            // }
         });
 
         $('.upload_button').on('click', function () {
