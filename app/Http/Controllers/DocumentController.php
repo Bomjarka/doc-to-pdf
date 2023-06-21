@@ -32,12 +32,13 @@ class DocumentController extends Controller
 //        ]);
 
         $document = $request->file('file');
-        if (!in_array($document->clientExtension(), $approvedExtensions)) {
-            return response()->json([
-                'message' => 'File not uploaded, wrong extension',
-            ]);
-        }
+
         if ($document) {
+            if (!in_array($document->clientExtension(), $approvedExtensions)) {
+                return response()->json([
+                    'message' => 'File not uploaded, wrong extension',
+                ]);
+            }
             $documentService->saveDocument($document);
             if ($documentService->fileExists($document->getClientOriginalName())) {
                 $documentVariables = $documentService->getVariables($document->getClientOriginalName());
