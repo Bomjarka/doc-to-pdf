@@ -25,10 +25,18 @@ class DocumentController extends Controller
      */
     public function upload(Request $request, DocumentService $documentService)
     {
-        $request->validate([
-            'file' => 'required|mimes:pdf,csv,xls,xlsx,doc,docx|max:2048',
-        ]);
+        $approvedExtensions = ['docx'];
+        //не работает с docx созданным в OpenOfficeWriter
+//        $request->validate([
+//            'file' => 'required|mimes:docx|max:2048',
+//        ]);
+
         $document = $request->file('file');
+        if (!in_array($document->clientExtension(), $approvedExtensions)) {
+            return response()->json([
+                'message' => 'File not uploaded, wrong extension',
+            ]);
+        }
         if ($document) {
             $documentService->saveDocument($document);
             if ($documentService->fileExists($document->getClientOriginalName())) {

@@ -70,7 +70,10 @@
                     processData: false,
                     dataType: 'json',
                     success: function (response) {
-                        $('.vars').append(response.vars.toString());
+                        alert(response.message);
+                        if (response.vars) {
+                            $('.vars').append(response.vars.toString());
+                        }
                         $('.filename').val(response.filename);
                         $('.upload_button').prop('disabled', true);
                     },
