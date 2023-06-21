@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./:/var/www/
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    ports:
+      - "8085:80"
+    depends_on:
+      - app
+    container_name: doc_to_pdf_docker_nginx
+  app:
+    build:
+        args:
+            uid: ${UID}
+            user: ${USER}
+        context: .
+        dockerfile: docker/app/Dockerfile
+    volumes:
+      - ./:/var/www
+    container_name: dock_to_pdf_docker_app
+
+
+
+
+
+
